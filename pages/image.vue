@@ -1,11 +1,9 @@
 <template>
   <div class="flex flex-col bg-transparent h-full pb-4 mt-4">
-    <!-- Chat box -->
     <div
       class="flex-1 overflow-y-auto overflow-hidden scrollbar-hidden h-[calc(90vh)]"
     >
       <div v-for="(message, index) in messages" :key="index">
-        <!-- User message -->
         <div
           v-if="message.type === 'user'"
           class="flex justify-end items-center space-x-2 mb-4"
@@ -22,7 +20,6 @@
           </div>
         </div>
 
-        <!-- Bot message or loading -->
         <div v-else class="flex justify-start items-center space-x-2 mb-4">
           <div class="w-12 h-12 flex items-center justify-center">
             <img src="~/assets/images/bot.png" alt="Hero" class="w-10 h-10" />
@@ -46,26 +43,30 @@
 
           <div
             v-else
-            class="bg-gray-200 text-gray-800 border border-gray-300 border-solid border-2 rounded-lg w-fit max-w-[calc(50%)]"
+            class="bg-gray-200 text-gray-800 border border-gray-300 border-solid border-2 rounded-lg w-[200px] h-[200px] max-w-[calc(30%)]"
           >
-            <p class="p-3 rounded-lg inline-block">
-              {{ message.text }}
-            </p>
+            <div v-if="message.text">
+              <p class="p-3 rounded-lg inline-block">
+                {{ message.text }}
+              </p>
+            </div>
+            <div v-if="message.image">
+              <img
+                :src="message.image"
+                alt="Generated Image"
+                class="h-[100px] w-[100px] rounded-lg"
+              />
+            </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Input field and send button -->
-    <div
-      class="px-4 border-t border-gray-300 flex items-center space-x-4 bg-white h-[calc(10vh)]"
-    >
+    <div class="flex p-4 space-x-2">
       <input
         v-model="userMessage"
         @keyup.enter="sendMessage"
         type="text"
         placeholder="Type a message..."
-        :disabled="isLoading"
         class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-500 font-semibold"
       />
       <button
@@ -109,7 +110,7 @@ const sendMessage = async () => {
 
   try {
     // Send message to API
-    const response = await fetchData("/chat", {
+    const response = await fetchData("/generate-image", {
       method: "POST",
       body: JSON.stringify({ text: userMessage.value })
     });
@@ -118,6 +119,7 @@ const sendMessage = async () => {
     messages.value[messages.value.length - 1] = {
       type: "bot",
       text: response.response,
+      image: response.url || null,
       isLoading: false
     };
   } catch (error) {
