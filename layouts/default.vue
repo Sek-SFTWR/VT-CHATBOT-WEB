@@ -6,7 +6,7 @@
     <div
       :class="[
         'flex flex-col bg-slate-100 transition-all duration-300 h-full',
-        isCollapsed ? 'w-[calc(100vw-5rem)]' : 'w-[80vw]',
+        isCollapsed ? 'w-[calc(100vw-5rem)]' : 'w-[80vw]'
       ]"
     >
       <div class="h-[calc(10vh)]">

@@ -2,7 +2,7 @@
   <div
     :class="[
       ' bg-gradient-to-b from-blue-500 to-blue-700 text-white p-4 flex flex-col transition-all duration-300 h-full',
-      isCollapsed ? 'w-20' : 'w-full',
+      isCollapsed ? 'w-20' : 'w-full'
     ]"
   >
     <!-- Header with Title and Action Buttons -->
@@ -50,12 +50,14 @@
         class="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-600 cursor-pointer border border-blue-300 border-solid border-2"
         @click="loadChat(chat)"
       >
-        <div
-          class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-blue-700"
-        >
-          <span class="font-semibold text-sm">{{ chat.initials }}</span>
+        <div class="flex-1 text-sm font-medium truncate">
+          {{ chat.title }}
         </div>
-        <div class="flex-1 text-sm font-medium truncate">{{ chat.title }}</div>
+        <div
+          class="flex text-mn font-medium text-white items-center w-3 justify-center"
+        >
+          ...
+        </div>
       </div>
     </div>
 
@@ -96,13 +98,13 @@
 
 <script setup>
 import { ref } from "vue";
-
+import chatdata from "@/lib/chatHistory.json";
 const isCollapsed = ref(false);
-const chatHistory = ref([
-  { title: "Chat 1", initials: "C1", messages: [] },
-  // Add more chat history items as needed
-]);
-
+const chatHistory = ref([]);
+onMounted(() => {
+  chatHistory.value = chatdata.messages || [];
+  emit("sidebar-collapse", isCollapsed.value);
+});
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value;
   emit("sidebar-collapse", isCollapsed.value);
@@ -127,6 +129,25 @@ const emit = defineEmits([
   "select-chat",
   "clear-history",
   "new-chat",
-  "sidebar-collapse",
+  "sidebar-collapse"
 ]);
 </script>
+<style scoped>
+.sidebar {
+  width: 250px;
+  transition: width 0.3s;
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+.chat-item {
+  cursor: pointer;
+  padding: 10px;
+}
+
+.chat-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+</style>

@@ -1,6 +1,11 @@
 <template>
   <div class="flex flex-col bg-transparent h-full pb-4 mt-4">
     <div
+      class="flex justify-center items-center mx-3 my-2 text-lg text-blue-500 w-full"
+    >
+      <h1 class="text-2xl font-semibold">Image Generation</h1>
+    </div>
+    <div
       class="flex-1 overflow-y-auto overflow-hidden scrollbar-hidden h-[calc(90vh)]"
     >
       <div v-for="(message, index) in messages" :key="index">
@@ -43,7 +48,7 @@
 
           <div
             v-else
-            class="bg-gray-200 text-gray-800 border border-gray-300 border-solid border-2 rounded-lg w-[200px] h-[200px] max-w-[calc(30%)]"
+            class="bg-gray-200 text-gray-800 border border-gray-300 border-solid border-2 rounded-lg w-fit"
           >
             <div v-if="message.text">
               <p class="p-3 rounded-lg inline-block">

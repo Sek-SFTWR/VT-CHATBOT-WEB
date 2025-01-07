@@ -1,9 +1,8 @@
 <template>
   <div class="flex flex-col bg-transparent h-full pb-4 mt-4">
     <div class="text-lg text-blue-500 w-full justify-center flex items-center">
-      <h1 class="text-2xl font-semibold">Seqiential Model</h1>
+      <h1 class="text-2xl font-semibold">GPT-4 Chat</h1>
     </div>
-
     <!-- Chat box -->
     <div
       class="flex-1 overflow-y-auto overflow-hidden scrollbar-hidden h-[calc(90vh)]"
@@ -100,20 +99,6 @@ import { useApi } from "~/composables/useApi";
 const { fetchData, isLoading, errorMessage } = useApi();
 const userMessage = ref("");
 const messages = ref([]);
-const chatHistoryKey = "chatHistory";
-
-// Load chat history from LocalStorage
-onMounted(() => {
-  const storedHistory = localStorage.getItem(chatHistoryKey);
-  if (storedHistory) {
-    messages.value = JSON.parse(storedHistory);
-  }
-});
-
-// Save chat history to LocalStorage
-const saveChatLocally = (messages) => {
-  localStorage.setItem(chatHistoryKey, JSON.stringify(messages));
-};
 
 // Send user message and handle response
 const sendMessage = async () => {
@@ -127,7 +112,7 @@ const sendMessage = async () => {
 
   try {
     // Send message to API
-    const response = await fetchData("/chat", {
+    const response = await fetchData("/pre-trained-chat", {
       method: "POST",
       body: JSON.stringify({ text: userMessage.value })
     });
@@ -140,8 +125,6 @@ const sendMessage = async () => {
       timestamp: new Date().toISOString()
     };
 
-    // Save updated chat to LocalStorage
-    saveChatLocally(messages.value);
     userMessage.value = "";
   } catch (error) {
     // Replace loading message with error
