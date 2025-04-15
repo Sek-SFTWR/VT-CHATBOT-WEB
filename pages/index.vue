@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col bg-transparent h-full pb-4 mt-4">
     <div class="text-lg text-blue-500 w-full justify-center flex items-center">
-      <h1 class="text-2xl font-semibold">Seqiential Model</h1>
+      <h1 class="text-2xl font-semibold">Trained Model</h1>
     </div>
 
     <!-- Chat box -->
@@ -107,6 +107,7 @@ onMounted(() => {
   const storedHistory = localStorage.getItem(chatHistoryKey);
   if (storedHistory) {
     messages.value = JSON.parse(storedHistory);
+    // localStorage.clear();
   }
 });
 

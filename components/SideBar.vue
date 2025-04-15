@@ -6,7 +6,7 @@
     ]"
   >
     <!-- Header with Title and Action Buttons -->
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between mb-8 mt-2">
       <div class="text-xl font-semibold" v-show="!isCollapsed">
         Chat History
       </div>
@@ -14,7 +14,7 @@
         <button
           v-show="!isCollapsed"
           @click="newChat"
-          class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md text-sm"
+          class="text-white px-2 py-1 rounded-md text-sm hover:bg-blue-600"
         >
           New Chat
         </button>
@@ -47,16 +47,16 @@
       <div
         v-for="(chat, index) in chatHistory"
         :key="index"
-        class="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-600 cursor-pointer border border-blue-300 border-solid border-2"
+        class="flex justify-between items-center py-2 px-4 rounded-lg hover:bg-blue-600 cursor-pointer border border-blue-300 border-solid border-2 transition duration-200"
         @click="loadChat(chat)"
       >
-        <div class="flex-1 text-sm font-medium truncate">
+        <div class="text-sm font-medium truncate w-full">
           {{ chat.title }}
         </div>
-        <div
-          class="flex text-mn font-medium text-white items-center w-3 justify-center"
-        >
-          ...
+        <div class="flex text-m font-medium text-white space-x-1">
+          <span>•</span>
+          <span>•</span>
+          <span>•</span>
         </div>
       </div>
     </div>
@@ -65,7 +65,7 @@
     <div v-show="!isCollapsed" class="mt-4 pt-4 border-t border-blue-400">
       <button
         @click="clearHistory"
-        class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-md text-sm"
+        class="w-full text-white py-2 rounded-md text-sm cursor-pointer border border-blue-300 border-solid border-2"
       >
         Clear History
       </button>

@@ -5,6 +5,29 @@
     >
       <h1 class="text-2xl font-semibold">Image Generation</h1>
     </div>
+
+    <!-- Image Upload Section -->
+    <div class="flex justify-center items-center space-x-4 mb-4 px-4">
+      <input
+        type="file"
+        ref="fileInput"
+        @change="handleFileUpload"
+        accept="image/png"
+        class="hidden"
+      />
+      <button
+        @click="$refs.fileInput.click()"
+        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+        :disabled="isLoading"
+      >
+        Upload Image
+      </button>
+      <span v-if="uploadedFileName" class="text-sm text-gray-600">
+        {{ uploadedFileName }}
+      </span>
+      <span class="text-sm text-gray-500"> (PNG format only, max 4MB) </span>
+    </div>
+
     <div
       class="flex-1 overflow-y-auto overflow-hidden scrollbar-hidden h-[calc(90vh)]"
     >
@@ -55,12 +78,19 @@
                 {{ message.text }}
               </p>
             </div>
-            <div v-if="message.image">
+            <div v-if="message.image" class="p-3">
               <img
                 :src="message.image"
                 alt="Generated Image"
-                class="h-[100px] w-[100px] rounded-lg"
+                class="h-[200px] w-[200px] rounded-lg"
               />
+              <button
+                v-if="message.downloadInfo"
+                @click="downloadImage(message.downloadInfo)"
+                class="mt-2 px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
+              >
+                Download Image
+              </button>
             </div>
           </div>
         </div>
@@ -72,6 +102,7 @@
         @keyup.enter="sendMessage"
         type="text"
         placeholder="Type a message..."
+        :disabled="isLoading"
         class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-500 font-semibold"
       />
       <button
@@ -103,32 +134,91 @@ import { useApi } from "~/composables/useApi";
 const { fetchData, isLoading, errorMessage } = useApi();
 const userMessage = ref("");
 const messages = ref([]);
+const uploadedFileName = ref("");
+
+const handleFileUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Check file type
+  if (file.type !== "image/png") {
+    messages.value.push({
+      type: "bot",
+      text: "Please upload a PNG image file.",
+      isLoading: false
+    });
+    return;
+  }
+
+  // Check file size (4MB = 4 * 1024 * 1024 bytes)
+  if (file.size > 4 * 1024 * 1024) {
+    messages.value.push({
+      type: "bot",
+      text: "Image size must be less than 4MB.",
+      isLoading: false
+    });
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/upload-image", {
+      method: "POST",
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.success) {
+      uploadedFileName.value = data.filename;
+      messages.value.push({
+        type: "bot",
+        text: "Image uploaded successfully! You can now generate variations or edit this image.",
+        isLoading: false
+      });
+    }
+  } catch (error) {
+    console.error("Upload error:", error);
+    messages.value.push({
+      type: "bot",
+      text: "Failed to upload image. Please try again.",
+      isLoading: false
+    });
+  }
+};
 
 const sendMessage = async () => {
   if (userMessage.value.trim() === "") return;
 
-  // Add user message
   messages.value.push({ type: "user", text: userMessage.value });
-
-  // Add loading message
   messages.value.push({ type: "bot", isLoading: true });
 
   try {
-    // Send message to API
     const response = await fetchData("/generate-image", {
       method: "POST",
-      body: JSON.stringify({ text: userMessage.value })
+      body: JSON.stringify({
+        text: userMessage.value,
+        uploaded_image: !!uploadedFileName.value
+      })
     });
 
-    // Replace loading message with response
     messages.value[messages.value.length - 1] = {
       type: "bot",
-      text: response.response,
-      image: response.url || null,
+      text: response.message,
+      image: response.data.url,
+      downloadInfo: response.data.download,
       isLoading: false
     };
+
+    // Clear the uploaded file name after generating
+    uploadedFileName.value = "";
   } catch (error) {
-    // Replace loading message with error
     messages.value[messages.value.length - 1] = {
       type: "bot",
       text: "Sorry, something went wrong.",
@@ -138,6 +228,20 @@ const sendMessage = async () => {
     userMessage.value = "";
     scrollToBottom();
   }
+};
+
+const downloadImage = (downloadInfo) => {
+  if (!downloadInfo || !downloadInfo.base64) return;
+
+  // Create a link element
+  const link = document.createElement("a");
+  link.href = `data:image/png;base64,${downloadInfo.base64}`;
+  link.download = downloadInfo.filename || "generated-image.png";
+
+  // Append to body, click, and remove
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
 const scrollToBottom = () => {

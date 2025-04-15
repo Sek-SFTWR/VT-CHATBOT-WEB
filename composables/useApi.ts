@@ -12,12 +12,19 @@ export function useApi() {
     errorMessage.value = "";
 
     try {
+      // Check if we're sending FormData
+      const isFormData = options.body instanceof FormData;
+
+      const headers = isFormData
+        ? {} // Let browser set headers for FormData
+        : {
+            "Content-Type": "application/json",
+            ...options.headers
+          };
+
       const response = await fetch(`${apiBaseUrl}${endpoint}`, {
         ...options,
-        headers: {
-          "Content-Type": "application/json",
-          ...options.headers,
-        },
+        headers
       });
 
       if (!response.ok) {
@@ -40,6 +47,6 @@ export function useApi() {
     fetchData,
     isLoading,
     errorMessage,
-    data,
+    data
   };
 }

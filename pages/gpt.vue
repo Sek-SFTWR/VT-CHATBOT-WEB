@@ -20,14 +20,14 @@
               {{ message.text }}
             </p>
           </div>
-          <div class="w-12 h-12 flex items-center justify-center">
+          <div class="w-12 h-12 flex items-end justify-end">
             <img src="~/assets/images/user.png" alt="you" class="w-10 h-10" />
           </div>
         </div>
 
         <!-- Bot message or loading -->
         <div v-else class="flex justify-start items-center space-x-2 mb-4">
-          <div class="w-12 h-12 flex items-center justify-center">
+          <div class="w-12 h-12 flex items-end justify-end">
             <img src="~/assets/images/bot.png" alt="Hero" class="w-10 h-10" />
           </div>
 
